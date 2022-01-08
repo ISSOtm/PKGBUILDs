@@ -6,45 +6,58 @@
 # Discussion: https://bbs.archlinux.org/viewtopic.php?pid=1853334#p1853334
 
 pkgname=aseprite-git
-_pkgname=aseprite
-pkgver=1.2.17.r64.gf689c2c48
+pkgver=1.3.beta7.r63.g8ec2fff44
 pkgrel=2
 pkgdesc='Create animated sprites and pixel art'
 arch=('x86_64' 'i686')
-url='http://www.aseprite.org/'
-license=('BSD' 'custom')
-depends=('curl' 'libjpeg-turbo' 'giflib' 'tinyxml' 'libxcursor' 'fontconfig' 'hicolor-icon-theme')
-makedepends=('git' 'ninja' 'python2' 'clang' 'cmake' 'libglvnd' 'harfbuzz-icu' 'pixman' 'libxi')
-provides=("${_pkgname}")
-conflicts=("${_pkgname}" "${_pkgname}-bin" "${_pkgname}-skia-bin")
-source=(
-        "git+https://github.com/${_pkgname}/laf.git"
-        "git+https://github.com/${_pkgname}/clip.git"
-        "git+https://github.com/${_pkgname}/flic.git"
-        "git+https://github.com/${_pkgname}/observable.git"
-        "git+https://github.com/${_pkgname}/tga.git"
-        "git+https://github.com/${_pkgname}/undo.git"
-        "git+https://github.com/${_pkgname}/benchmark.git"
-        "git+https://github.com/${_pkgname}/cmark.git"
-        "git+https://github.com/${_pkgname}/fmt.git"
-        "git+https://github.com/${_pkgname}/freetype2.git"
-        "git+https://github.com/${_pkgname}/giflib.git"
-        "git+https://github.com/${_pkgname}/harfbuzz.git"
-        "git+https://github.com/${_pkgname}/json11.git"
-        "git+https://github.com/${_pkgname}/libarchive.git"
-        "git+https://github.com/${_pkgname}/libpng.git"
-        "git+https://github.com/${_pkgname}/libwebp.git"
-        "git+https://github.com/${_pkgname}/lua"
-        "git+https://github.com/${_pkgname}/pixman.git"
-        "git+https://github.com/${_pkgname}/simpleini.git"
-        "git+https://github.com/${_pkgname}/tinyexpr.git"
-        "git+https://github.com/${_pkgname}/zlib.git"
-        "git+https://github.com/${_pkgname}/stringencoders"
-        "git+https://github.com/${_pkgname}/googletest"
-        "git+https://github.com/${_pkgname}/skia.git#branch=aseprite-m96"
-        "git+https://github.com/${_pkgname}/${_pkgname}.git"
-        'desktop.patch')
-sha256sums=(
+url='https://www.aseprite.org/'
+license=('custom')
+#depends=('curl' 'libjpeg-turbo' 'giflib' 'tinyxml' 'libxcursor' 'fontconfig' 'hicolor-icon-theme')
+#makedepends=('git' 'ninja' 'python2' 'clang' 'cmake' 'libglvnd' 'harfbuzz-icu' 'pixman' 'libxi')
+depends=(# ~ Aseprite's direct dependencies ~
+         # pixman is not linked to because we use Skia instead
+         # harfbuzz is linked statically because Aseprite expects an older version
+         cmark libcurl.so libgif.so libjpeg.so zlib libpng tinyxml libfreetype.so libarchive.so libfmt.so
+         libwebp.so libwebpmux.so libwebpdemux.so
+         hicolor-icon-theme # For installing Aseprite's icons
+         # ~ Skia deps ~
+         # (Skia links dynamically to HarfBuzz, only Aseprite itself doesn't. >_<)
+         libexpat.so=1-64 libharfbuzz.so=0-64 libgl
+         # Already required by Aseprite: libjpeg-turbo libpng zlib freetype2
+         # These two are only reported by Namcap, but don't seem to be direct dependencies?
+         libfontconfig.so libxcursor)
+makedepends=(# "Meta" dependencies
+             cmake ninja git python gn
+             # Aseprite (including e.g. LAF)
+             libxi)
+provides=(aseprite)
+conflicts=(aseprite)
+source=("git+https://github.com/aseprite/aseprite.git#branch=beta" # The dev branch is not `main`
+        # Aseprite submodules
+        "git+https://github.com/aseprite/laf.git"
+        "git+https://github.com/aseprite/clip.git"
+        "git+https://github.com/aseprite/flic.git"
+        "git+https://github.com/aseprite/observable.git"
+        "git+https://github.com/aseprite/tga.git"
+        "git+https://github.com/aseprite/undo.git"
+        "git+https://github.com/aseprite/cityhash.git"
+        "git+https://github.com/aseprite/json11.git"
+        "git+https://github.com/aseprite/pixman.git"
+        "git+https://github.com/aseprite/simpleini.git"
+        "git+https://github.com/aseprite/tinyexpr.git"
+        # LAF submodules
+        "git+https://github.com/aseprite/stringencoders.git"
+        # Skia
+        "git+https://github.com/aseprite/skia.git#branch=aseprite-m96" # The branch is noted in `aseprite/INSTALL.md`
+        desktop.patch
+        shared-fmt.patch
+        # Based on https://patch-diff.githubusercontent.com/raw/aseprite/aseprite/pull/2535.patch
+        shared-libarchive.patch
+        # Based on https://patch-diff.githubusercontent.com/raw/aseprite/aseprite/pull/2523.patch
+        shared-libwebp.patch
+        shared-skia-deps.patch
+        optional-pixman.patch)
+sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
@@ -58,183 +71,105 @@ sha256sums=(
             'SKIP'
             'SKIP'
             'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            '8b14e36939e930de581e95abf0591645aa0fcfd47161cf88b062917dbaaef7f9')
-_submodules=(
-    'laf'
-    'clip'
-    'flic'
-    'observable'
-    'tga'
-    'undo'
-    'benchmark'
-    'cmark'
-    'fmt'
-    'freetype2'
-    'giflib'
-    'harfbuzz'
-    'json11'
-    'libarchive'
-    'libpng'
-    'libwebp'
-    'lua'
-    'pixman'
-    'simpleini'
-    'tinyexpr'
-    'zlib')
-_submodules_path=(
-    "laf"
-    "src/clip"
-    "src/flic"
-    "src/observable"
-    "src/tga"
-    "src/undo"
-    "third_party/benchmark"
-    "third_party/cmark"
-    "third_party/fmt"
-    "third_party/freetype2"
-    "third_party/giflib"
-    "third_party/harfbuzz"
-    "third_party/json11"
-    "third_party/libarchive"
-    "third_party/libpng"
-    "third_party/libwebp"
-    "third_party/lua"
-    "third_party/pixman"
-    "third_party/simpleini"
-    "third_party/tinyexpr"
-    "third_party/zlib")
+            '8b14e36939e930de581e95abf0591645aa0fcfd47161cf88b062917dbaaef7f9'
+            '821f1354dbbc0bb3fa700e63037ed3c89b0d32bd2ab253450f91eeacd7d47c06'
+            'd7f2f8c43d24382453273ed17b1c0e05928980a36ad0b7c988da3aa0fe32de53'
+            '9ce05287a136d34000b8905e4862500f436bb81afdabb9eba912cd8559359d93'
+            'eb9f544e68b41b5cb1a9ab7a6648db51587e67e94f1a452cb5a84f3d224bf5d0'
+            'c2d14f9738a96a9db3695c00ac3d14b1312b6a595b151bd56e19422c86517654')
 
 pkgver() {
-    cd "${srcdir}/${_pkgname}"
+    cd aseprite
     git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^v//'
 }
 
 prepare() {
-    cd "${srcdir}/${_pkgname}"
-    git submodule init
-    for (( i=0; i<${#_submodules[@]}; i++ )); do
-        git config submodule.${_submodules_path[$i]}.url "${srcdir}/${_submodules[$i]}"
+    # Set up Aseprite's Git submodules
+    local -A _submodules=([laf]=laf
+                          [clip]=src/clip
+                          [flic]=src/flic
+                          [observable]=src/observable
+                          [tga]=src/tga
+                          [undo]=src/undo
+                          [cityhash]=third_party/cityhash
+                          [json11]=third_party/json11
+                          [pixman]=third_party/pixman
+                          [simpleini]=third_party/simpleini
+                          [tinyexpr]=third_party/tinyexpr) _submodule
+    cd aseprite
+    git submodule init "${_submodules[@]}"
+    for _submodule in "${#_submodules[@]}"; do
+        git config "submodule.${_submodules[$_submodule]}.url" "$srcdir/$_submodule"
     done
-    git submodule update
+    git submodule update "${_submodules[@]}"
 
-    cd laf
-    git submodule init
-    git config submodule.third_party/stringencoders.url "${srcdir}/stringencoders"
-    git config submodule.third_party/googletest.url "${srcdir}/googletest" #
-    git submodule update
+    # Set up LAF's Git submodules
+    pushd laf
+    git submodule init third_party/stringencoders
+    git config submodule.third_party/stringencoders.url "$srcdir/stringencoders"
+    git submodule update third_party/stringencoders
+    popd
 
-    cd "${srcdir}/${_pkgname}"
-    patch --strip=1 --input="${srcdir}/desktop.patch"
-    mkdir -p build
-
-    cd "${srcdir}/skia"
-    python2 tools/git-sync-deps
-
-    mkdir -p "${srcdir}/.pkgbuild-bin"
-    ln -sf "$(which python2)" "${srcdir}/.pkgbuild-bin/python"
+    # Fix up Aseprite's desktop integration
+    patch -tp1 <../desktop.patch
+    # Use more shared libs
+    patch -tp1 <../shared-fmt.patch
+    patch -tp1 <../shared-libarchive.patch
+    patch -tp1 <../shared-libwebp.patch
+    patch -tp1 <../optional-pixman.patch
+    # Their "FindSkia" module forcefully tries to use Skia's FreeType and HarfBuzz,
+    # but we don't clone those because we use the shared ones. Avoid overwriting the settings instead.
+    patch -tp1 <../shared-skia-deps.patch
 }
 
 build() {
-    export PATH="${srcdir}/.pkgbuild-bin":$PATH
-    cd "${srcdir}/skia"
-    # bin/gn gen out/Clang --args='is_debug=false is_official_build=true cc="clang" cxx="clang++" skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false'
-    bin/gn gen out/Clang --args='is_debug=false is_official_build=true skia_use_system_expat=false skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_sfntly=false skia_use_freetype=true skia_use_harfbuzz=true skia_pdf_subset_harfbuzz=true skia_use_system_freetype2=false skia_use_system_harfbuzz=false'
-    ninja -C out/Clang skia modules
+    echo Building Skia...
+    local _skiadir="$PWD/skia/obj"
+    # Flags can typically be found in `src/skia/gn/skia.gni`... but you're kind of on your own
+    env -C skia gn gen "$_skiadir" --args="`printf '%s ' \
+is_debug=false is_official_build=true skia_build_fuzzers=false \
+skia_enable_{pdf,skottie,skrive,sksl}=false \
+skia_use_{libjpeg_turbo,libwebp}_{encode,decode}=false \
+skia_use_{expat,xps,zlib,libgifcodec,sfntly}=false`"
+    ninja -C "$_skiadir" skia modules
 
-    cd "${srcdir}/${_pkgname}/build"
-    cmake \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DLAF_BACKEND=skia \
-        -DSKIA_DIR="$srcdir/skia" \
-        -DSKIA_LIBRARY_DIR="$srcdir/skia/out/Clang" \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DUSE_SHARED_CURL=ON \
-        -DUSE_SHARED_JPEGLIB=ON \
-        -DUSE_SHARED_GIFLIB=ON \
-        -DUSE_SHARED_ZLIB=ON \
-        -DUSE_SHARED_LIBPNG=ON \
-        -DUSE_SHARED_TINYXML=ON \
-        -DUSE_SHARED_PIXMAN=ON \
-        -DUSE_SHARED_FREETYPE=ON \
-        -DUSE_SHARED_HARFBUZZ=ON \
-        -DWITH_WEBP_SUPPORT=ON \
-        -DENABLE_TESTS=OFF \
-        -DENABLE_BENCHMARKS=OFF \
-        -DLAF_WITH_TESTS=OFF \
-        -DLAF_WITH_EXAMPLES=OFF \
-        -G Ninja \
-        ..
-    ninja ${_pkgname}
+    echo Building Aseprite...
+    # Suppress install messages since we install to a temporary area; `install -v` will do the job
+    cmake -S aseprite -B build -G Ninja -Wno-dev -DCMAKE_INSTALL_MESSAGE=NEVER -DCMAKE_BUILD_TYPE=None \
+-DENABLE_{UPDATER,SCRIPTING,WEBSOCKET}=NO -DLAF_WITH_EXAMPLES=OFF -DLAF_WITH_TESTS=OFF -DLAF_BACKEND=skia \
+-DSKIA_DIR="$PWD/skia" -DSKIA_LIBRARY_DIR="$_skiadir" -DSKIA_LIBRARY="$_skiadir/libskia.a" \
+-DUSE_SHARED_{CMARK,CURL,FMT,GIFLIB,JPEGLIB,ZLIB,LIBPNG,TINYXML,PIXMAN,FREETYPE,HARFBUZZ,LIBARCHIVE,WEBP}=YES
+    ninja -C build
+}
+
+check() {
+    env -C build ctest --output-on-failure
 }
 
 package() {
-    cd "${srcdir}/${_pkgname}/build"
-    DESTDIR="${pkgdir}" ninja install
+    # Now the fun part: components of e.g. `libwebp` get installed as well,
+    # since we've had to compile it. But we don't want them.
+    # So, install normally, and then cherry-pick Aseprite's files out of that.
+    # Use a whitelist to prefer installing not enough (breakage goes noticed),
+    # instead of too much (cruft rarely goes noticed). Also hope that it doesn't break :)
+    cmake --install build --prefix=staging --strip
 
-    # Remove extraneous files
-    # https://github.com/aseprite/aseprite/issues/1574
-    # https://github.com/aseprite/aseprite/issues/1602
-
-    rm -f "${pkgdir}"/usr/bin/bsd*
-    rm -f "${pkgdir}"/usr/lib/pkgconfig/libarchive.pc
-    rm -f "${pkgdir}"/usr/share/man/man1/bsd*
-
-    rm -f "${pkgdir}"/usr/bin/img2webp
-    rm -fr "${pkgdir}"/usr/include/webp/
-    rm -f "${pkgdir}"/usr/lib/libwebp*
-    rm -fr "${pkgdir}"/usr/share/WebP/
-    rm -f "${pkgdir}"/usr/share/man/man1/img2webp.1
-
-    rm -f "${pkgdir}"/usr/include/json11.hpp
-    rm -f "${pkgdir}"/usr/lib/libjson11.a
-    rm -f "${pkgdir}"/usr/lib/pkgconfig/json11.pc
-
-    rm -f "${pkgdir}"/usr/include/cmark*
-    rm -fr "${pkgdir}"/usr/lib/cmake/cmark
-    rm -f "${pkgdir}"/usr/lib/pkgconfig/libcmark.pc
-    rm -f "${pkgdir}"/usr/lib/libcmark*
-    rm -f "${pkgdir}"/usr/share/man/man1/cmark.1
-    rm -f "${pkgdir}"/usr/share/man/man3/cmark.3
-
-    rm -f "${pkgdir}"/usr/bin/get_disto
-    rm -f "${pkgdir}"/usr/bin/cwebp
-    rm -f "${pkgdir}"/usr/bin/dwebp
-    rm -f "${pkgdir}"/usr/bin/gif2webp
-    rm -f "${pkgdir}"/usr/bin/vwebp
-    rm -f "${pkgdir}"/usr/bin/vwebp_sdl
-    rm -f "${pkgdir}"/usr/bin/webpinfo
-    rm -f "${pkgdir}"/usr/bin/webpmux
-    rm -f "${pkgdir}"/usr/bin/webp_quality
-    rm -f "${pkgdir}"/usr/lib/pkgconfig/libwebp*
-    rm -f "${pkgdir}"/usr/share/man/man1/cwebp.1
-    rm -f "${pkgdir}"/usr/share/man/man1/dwebp.1
-    rm -f "${pkgdir}"/usr/share/man/man1/gif2webp.1
-    rm -f "${pkgdir}"/usr/share/man/man1/vwebp.1
-    rm -f "${pkgdir}"/usr/share/man/man1/webpinfo.1
-    rm -f "${pkgdir}"/usr/share/man/man1/webpmux.1
-
-    find "${pkgdir}" -type d -empty -delete
-
-    cd "${srcdir}/${_pkgname}"
-
-    install -Dm644 "src/desktop/linux/${_pkgname}.desktop" "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
-    install -Dm644 "src/desktop/linux/mime/${_pkgname}.xml" "${pkgdir}/usr/share/mime/packages/${_pkgname}.xml"
-    for i in {16,32,48,64,128,256}; do
-        install -Dm644 "data/icons/ase${i}.png" "${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps/${_pkgname}.png"
-        install -Dm644 "data/icons/doc${i}.png" "${pkgdir}/usr/share/icons/hicolor/${i}x${i}/mimetypes/image-x-${_pkgname}.png"
+    # Install the binary and its `.desktop` file
+    install -vDm 755 staging/bin/aseprite "$pkgdir/usr/bin/aseprite"
+    install -vDm 644 aseprite/src/desktop/linux/aseprite.desktop "$pkgdir/usr/share/applications/aseprite.desktop"
+    install -vDm 644 aseprite/src/desktop/linux/mime/aseprite.xml "${pkgdir}/usr/share/mime/packages/${_pkgname}.xml"
+    # Install the icons in the correct directory (which is not the default)
+    local _size
+    for _size in 16 32 48 64 128 256; do
+        # The installed icon's name is taken from the `.desktop` file
+        install -vDm 644 staging/share/aseprite/data/icons/ase$_size.png "$pkgdir/usr/share/icons/hicolor/${_size}x$_size/apps/aseprite.png"
     done
-    install -Dm644 "EULA.txt" "${pkgdir}/usr/share/licenses/${pkgname}/EULA"
-    install -Dm644 "${srcdir}/${_pkgname}/docs/LICENSES.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSES"
+    # Delete the icons to avoid copying them in two places (they aren't used by Aseprite itself)
+    rm -rf staging/share/aseprite/data/icons
+    # Install all of the program's data
+    cp -vrt "$pkgdir/usr/share" staging/share/aseprite
+    # Also install the licenses
+    install -vDm 644 -t "$pkgdir/usr/share/licenses/$pkgname" aseprite/{EULA.txt,docs/LICENSES.md}
+    # Copy the font's license, but leave it in the font directory as well (probably doesn't hurt)
+    install -vm 644 aseprite/data/fonts/LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/font.txt"
 }
