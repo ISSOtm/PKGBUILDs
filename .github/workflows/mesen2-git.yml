@@ -1,0 +1,25 @@
+name: mesen2-git
+on:
+  push:
+    paths:
+        - "mesen2-git/**"
+  pull_request:
+    paths:
+        - "mesen2-git/**"
+  workflow_dispatch:
+
+jobs:
+  pkgbuild:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Build package
+      id: makepkg
+      uses: edlanglois/pkgbuild-action@v1
+      with:
+        pkgdir: "mesen2-git"
+    - name: Upload package
+      uses: actions/upload-artifact@v2
+      with:
+          path: ${{ steps.makepkg.outputs.pkgfile0 }}
