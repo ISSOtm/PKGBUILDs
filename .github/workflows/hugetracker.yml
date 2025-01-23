@@ -2,9 +2,11 @@ name: hugetracker
 on:
   push:
     paths:
+        - .github/workflows/hugetracker.yml
         - "hugetracker/**"
   pull_request:
     paths:
+        - .github/workflows/hugetracker.yml
         - "hugetracker/**"
   workflow_dispatch:
 

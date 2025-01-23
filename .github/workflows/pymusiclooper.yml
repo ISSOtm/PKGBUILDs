@@ -2,9 +2,11 @@ name: pymusiclooper
 on:
   push:
     paths:
+        - .github/workflows/pymusiclooper.yml
         - "pymusiclooper/**"
   pull_request:
     paths:
+        - .github/workflows/pymusiclooper.yml
         - "pymusiclooper/**"
   workflow_dispatch:
 

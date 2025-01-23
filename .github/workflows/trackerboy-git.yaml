@@ -2,9 +2,11 @@ name: trackerboy-git
 on:
   push:
     paths:
+        - .github/workflows/trackerboy-git.yaml
         - "trackerboy-git/**"
   pull_request:
     paths:
+        - .github/workflows/trackerboy-git.yaml
         - "trackerboy-git/**"
   workflow_dispatch:
 

@@ -2,9 +2,11 @@ name: mesen2-git
 on:
   push:
     paths:
+        - .github/workflows/mesen2-git.yml
         - "mesen2-git/**"
   pull_request:
     paths:
+        - .github/workflows/mesen2-git.yml
         - "mesen2-git/**"
   workflow_dispatch:
 

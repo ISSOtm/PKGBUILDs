@@ -2,9 +2,11 @@ name: python-click-params
 on:
   push:
     paths:
+        - .github/workflows/python-click-params.yml
         - "python-click-params/**"
   pull_request:
     paths:
+        - .github/workflows/python-click-params.yml
         - "python-click-params/**"
   workflow_dispatch:
 
