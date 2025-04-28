@@ -1,0 +1,27 @@
+name: sameboy-git
+on:
+  push:
+    paths:
+        - .github/workflows/sameboy-git.yml
+        - "sameboy-git/**"
+  pull_request:
+    paths:
+        - .github/workflows/sameboy-git.yml
+        - "sameboy-git/**"
+  workflow_dispatch:
+
+jobs:
+  pkgbuild:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Build package
+      id: makepkg
+      uses: edlanglois/pkgbuild-action@v1
+      with:
+        pkgdir: "sameboy-git"
+    - name: Upload package
+      uses: actions/upload-artifact@v4
+      with:
+          path: ${{ steps.makepkg.outputs.pkgfile0 }}
