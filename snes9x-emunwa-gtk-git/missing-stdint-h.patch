@@ -1,0 +1,12 @@
+diff --git a/SPIRV/SpvBuilder.h b/SPIRV/SpvBuilder.h
+index 02e9cf40..f76efe5c 100644
+--- a/SPIRV/SpvBuilder.h
++++ b/SPIRV/SpvBuilder.h
+@@ -61,6 +61,7 @@ namespace spv {
+ #include <set>
+ #include <sstream>
+ #include <stack>
++#include <stdint.h>
+ #include <unordered_map>
+ #include <map>
+ 

@@ -1,0 +1,27 @@
+name: snes9x-emunwa-gtk-git
+on:
+  push:
+    paths:
+        - .github/workflows/snes9x-emunwa-gtk-git.yml
+        - "snes9x-emunwa-gtk-git/**"
+  pull_request:
+    paths:
+        - .github/workflows/snes9x-emunwa-gtk-git.yml
+        - "snes9x-emunwa-gtk-git/**"
+  workflow_dispatch:
+
+jobs:
+  pkgbuild:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Build package
+      id: makepkg
+      uses: edlanglois/pkgbuild-action@v1
+      with:
+        pkgdir: "snes9x-emunwa-gtk-git"
+    - name: Upload package
+      uses: actions/upload-artifact@v4
+      with:
+          path: ${{ steps.makepkg.outputs.pkgfile0 }}
